@@ -10,7 +10,6 @@ class Product extends FullAuditedEntity
 
     public const RULES = [
         'name' => 'required',
-        'code' => 'required',
     ];
     protected $table = 'products';
     // public ?int $provider_id;

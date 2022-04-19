@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\AuthenticationApiController;
-use App\Http\Controllers\CartApiController;
-use App\Http\Controllers\CategoryApiController;
-use App\Http\Controllers\FileApiController;
-use App\Http\Controllers\ImageAssignApiController;
-use App\Http\Controllers\InvoiceApiController;
-use App\Http\Controllers\InvoiceDetailApiController;
-use App\Http\Controllers\ProductApiController;
-use App\Http\Controllers\ProductDetailApiController;
+use App\Http\Controllers\API\AuthenticationApiController;
+use App\Http\Controllers\API\CartApiController;
+use App\Http\Controllers\API\CategoryApiController;
+use App\Http\Controllers\API\FileApiController;
+use App\Http\Controllers\API\ImageAssignApiController;
+use App\Http\Controllers\API\InvoiceApiController;
+use App\Http\Controllers\API\InvoiceDetailApiController;
+use App\Http\Controllers\API\ProductApiController;
+use App\Http\Controllers\API\ProductDetailApiController;
 use App\Http\Controllers\RegisterApiController;
 use App\Http\Middleware\CORS;
 use App\Http\Resources\UserResource;
@@ -28,14 +28,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['admin'])->prefix('admin')->group(function () {
+Route::middleware([])->prefix('admin')->group(function () {
     Route::get('/user', function (Request $request) {
         return response()->json([
             'code' => Response::HTTP_OK,
             'status' => true,
             'data' => new UserResource(Auth::user()),
             'meta' => []
-            
+
         ]);
     });
     Route::resource('products', ProductApiController::class)->except(['edit', 'create']);
@@ -52,7 +52,7 @@ Route::middleware(['admin'])->prefix('admin')->group(function () {
     Route::post('upload', [FileApiController::class, 'uploadRange'])->name('file.uploadRange')->middleware(['auth:api']);
 });
 Route::put('blobs/{id}', [FileApiController::class, 'updateBlob'])->name('blob.update')->middleware(['auth:api']);
-Route::post('upload', [FileApiController::class, 'upload'])->name('file.upload')->middleware(['auth:api']);
+Route::post('upload', [FileApiController::class, 'upload'])->name('file.upload');
 Route::delete('blobs/{id}', [FileApiController::class, 'delete'])->name('blob.delete')->middleware(['auth:api']);
 Route::get('files/{name}', [FileApiController::class, 'get'])->name('file.get');
 Route::get('blobs/{id}', [FileApiController::class, 'getByBlob'])->name('file.blob');
@@ -61,8 +61,7 @@ Route::get('file/download/{name}', [FileApiController::class, 'download'])->name
 
 Route::prefix('admin')->group(function() {
     // Route::post('register', [RegisterApiController::class, 'register'])->name('auth.register');
-    Route::post('login', [AuthenticationApiController::class, 'login'])->name('auth.login');
+    Route::post('login', [AuthenticationApiController::class, 'adminLogin'])->name('auth.admin.login');
 });
-    
+
 // Route::get('/products', [ProductApiController::class, 'Index']);
-    

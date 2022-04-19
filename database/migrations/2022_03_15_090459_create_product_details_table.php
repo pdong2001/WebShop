@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('total_quantity');
             $table->boolean('visible')->default(true);
             $table->unsignedBigInteger('default_image')->nullable();
+            $table->string('unit', 50);
             ProductDetail::Migration($table);
         });
     }

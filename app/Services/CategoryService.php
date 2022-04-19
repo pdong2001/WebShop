@@ -54,7 +54,8 @@ class CategoryService
         if ($orderBy) {
             $query->orderBy($orderBy['column'], $orderBy['sort']);
         }
-        return CategoryResource::collection($query->paginate($page_size, page: $page_index));
+        $query->orderBy('id', 'desc');
+    return CategoryResource::collection($query->paginate($page_size, page: $page_index));
     }
 
     public function getById(int $id)

@@ -23,8 +23,6 @@ class ProductFactory extends Factory
             'name' => $this->faker->name,
             'code' => $this->faker->unique()->name(),
             'option_count' => $this->faker->numberBetween(1, 10),
-            'default_image'=> $this->faker->unique()->numberBetween(1, 100),
-            'default_image'=> $this->faker->numberBetween(1, 10),
             'category_id' => $this->faker->numberBetween(1, 10),
             'created_by' => $this->faker->numberBetween(1,User::count()),
             'category_id' => Category::factory()

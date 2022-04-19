@@ -20,9 +20,9 @@ use Illuminate\Http\Request;
 
 
 
-// Route::prefix('admin')->group(function() {
-//     Route::get('home', [AdminController::class, 'Index']);
-//     Route::get('product', [AdminController::class, 'Product']);
-//     Route::get('product-detail', [AdminController::class, 'ProductDetail']);
-//     Route::get('category', [AdminController::class, 'Category']);
-// });
+Route::prefix('admin')->group(function() {
+    Route::get('home', [AdminController::class, 'Index']);
+    Route::get('product', [AdminController::class, 'Product']);
+    Route::get('product-detail', [AdminController::class, 'ProductDetail']);
+    Route::get('category', [AdminController::class, 'Category']);
+});

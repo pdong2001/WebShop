@@ -24,9 +24,15 @@ class ProductDetail extends FullAuditedEntity
         'option_value' => 'required',
         'in_price' => 'required|min:0',
         'out_price' => 'required|min:0',
+        'unit' => 'required',
+    ];
+
+    protected $casts = [
+        'visible' => 'boolean'
     ];
 
     protected $fillable = [
+        ...parent::FILLABLE,
         "id",
         "option_name",
         "option_value",
@@ -36,11 +42,8 @@ class ProductDetail extends FullAuditedEntity
         "total_quantity",
         "default_image",
         "product_id",
-        "created_by",
-        "last_updated_by",
-        "deleted_time",
-        "deleted_by",
-        "is_deleted"
+        "unit",
+        "visible"
     ];
 
     public function product()

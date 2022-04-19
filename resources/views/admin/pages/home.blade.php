@@ -5,6 +5,6 @@
 @section('page-title')
     Trang chủ
 @endsection
-@section('content')
+@section('main-content')
     
 @endsection

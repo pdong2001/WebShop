@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Response;
+use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -37,7 +39,6 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
         });
     }
 
@@ -46,7 +47,8 @@ class Handler extends ExceptionHandler
     //     return response()->json([
     //         'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
     //         'status' => false,
-    //         'message' => $e->getMessage()
+    //         'message' => $e->getMessage(),
+    //         'trace' => $e->getTrace()
     //     ]);
     // }
 }
