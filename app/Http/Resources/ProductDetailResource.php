@@ -25,6 +25,8 @@ class ProductDetailResource extends JsonResource
             'in_price' => $this->whenLoaded('in_price')?$this->in_price:null,
             'remaining_quantity' => $this->remaining_quantity,
             'total_quantity' => $this->total_quantity,
+            'unit' => $this->unit,
+            'visible' => $this->visible,
             'default_image' => $this->default_image,
             'images' => ImageAssignResource::collection($this->whenLoaded('images')),
             'default_image' => new BlobResource($this->whenLoaded('image')),

@@ -89,9 +89,9 @@
                         <div ng-if="!deleting" class="container-fluid">
                             <div class="row">
                                 <div class="mb-3 col-md-6 col-12">
-                                    <label for="categories" class="form-label fw-bold">Loại sản phẩm</label>
-                                    <select id="selectCate" data-ng-options="o.name for o in categories" class="form-select"
-                                            data-ng-model="selectedCategory"></select>
+                                    <label for="select" class="form-label fw-bold">Sản phẩm</label>
+                                    <select id="select" data-ng-options="o.name for o in products" class="form-select"
+                                            data-ng-model="selectedProduct"></select>
 
                                 </div>
                                 <div ng-repeat="f in fields | editable" ng-class="f.type != 'editor' ? 'col-md-6' : ''"
@@ -127,6 +127,6 @@
 @endsection
 
 @section('scripts')
-    <script src="/admin/js/productExtend.js"></script>
+    <script src="/admin/js/productDetailExtend.js"></script>
     <script src="/admin/js/appController.js"></script>
 @endsection

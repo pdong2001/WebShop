@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('option_count')->default(0);
             $table->boolean('visible')->default(true);
             $table->bigInteger('quantity')->default(0);
-            $table->text('description')->fulltext();
+            $table->text('description')->fulltext()->nullable();
             $table->unsignedBigInteger('default_detail')->nullable();
             Product::Migration($table);
         });
