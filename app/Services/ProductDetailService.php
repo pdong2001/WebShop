@@ -45,7 +45,7 @@ class ProductDetailService
         return $deleted;
     }
 
-    public function create(array|ProductDetail $data)
+    public function create(array |ProductDetail $data)
     {
         $productDetail = is_array($data) ?
         ProductDetail::create($data)
@@ -82,7 +82,10 @@ function getAll(
         $query->where('remaining_quantity', '>', '0');
     }
     $query->with('image');
-    $query->with('product');
+
+    if (isset($option['with_product'])) {
+        $query->with('product');
+    }
 
     if (isset($option['product_id'])) {
         $query->where('product_id', '=', $option['product_id']);
@@ -93,11 +96,11 @@ function getAll(
     }
     if (isset($option['search']) && $option['search'] != '') {
         $query->join('products', 'product_details.product_id', '=', 'products.id')
-            ->where('products.name', 'LIKE', "%" . $option['search'] . "%")
+            ->where('products.name', 'LIKE', "%" . $option['search'] . "%", 'OR')
             ->where('product_details.option_value', 'LIKE', "%" . $option['search'] . "%", 'OR')
             ->where('product_details.option_name', '=', $option['search'], 'OR')
             ->where('product_details.unit', '=', $option['search'], 'OR')
-            ->get(['product_details.*']);
+            ->select(['product_details.*', 'products.name']);
     }
     if ($orderBy) {
         $query->orderBy($orderBy['column'], $orderBy['sort']);

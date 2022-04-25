@@ -9,53 +9,73 @@ use App\Models\ImageAssign;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 use Spatie\FlareClient\Http\Exceptions\NotFound;
 
 class FileApiController extends Controller
 {
     public function getListBlob(Request $request)
     {
-        try {
-            $query = Blob::query();
-            if (isset($request['product_detail_id']) && $request['product_detail_id'] != 0) {
-                $query->join('image_assigns', 'blobs.id', '=', 'image_assigns.blob_id')
-                    ->where('image_assigns.imageable_type', '=', 'App\\Models\\ProductDetail')
-                    ->where('image_assigns.imageable_id', '=', $request['product_detail_id'])
-                    ->get(['blobs.*']);
-            } else if (isset($request['product_id']) && $request['product_id'] != 0) {
-                $query->join('image_assigns', 'blobs.id', '=', 'image_assigns.blob_id')
-                    ->where('image_assigns.imageable_type', '=', 'App\\Models\\Product')
-                    ->where('image_assigns.imageable_id', '=', $request['product_id'])
-                    ->get(['blobs.*']);
-            }
-            $page_index = $request->get('page') ?? 1;
-            $page_size = $request->get('limit') ?? 10;
-            if ($request->get('search')) {
-                $query->where('name', 'LIKE', '%' . $request->get('search') . '%');
-            }
-            if ($request->get('column') && $request->get('sort')) {
-                $query->orderBy($request->get('column'), $request->get('sort'));
-            }
-
-            $result =  BlobResource::collection($query->paginate($page_size, page: $page_index));
-            return response()->json([
-                'code' => Response::HTTP_OK,
-                'status' => true,
-                'data' => $result->items(),
-                'meta' => [
-                    'total' => $result->total(),
-                    'perPage' => $result->perPage(),
-                    'currentPage' => $result->currentPage()
-                ]
-            ]);
-        } catch (Throwable $th) {
-            $response = response()->json([
-                'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'status' => false,
-                'message' => $th->getMessage()
-            ]);
+        $query = Blob::query();
+        if (isset($request['product_detail_id']) && $request['product_detail_id'] != 0) {
+            $query->join('image_assigns', 'blobs.id', '=', 'image_assigns.blob_id')
+                ->where('image_assigns.imageable_type', '=', 'App\\Models\\ProductDetail')
+                ->where('image_assigns.imageable_id', '=', $request['product_detail_id'])
+                ->get(['blobs.*']);
+        } else if (isset($request['product_id']) && $request['product_id'] != 0) {
+            $query->join('image_assigns', 'blobs.id', '=', 'image_assigns.blob_id')
+                ->where('image_assigns.imageable_type', '=', 'App\\Models\\Product')
+                ->where('image_assigns.imageable_id', '=', $request['product_id'])
+                ->get(['blobs.*']);
         }
+        $page_index = $request->get('page') ?? 1;
+        $page_size = $request->get('limit') ?? 10;
+        if ($request->get('search')) {
+            $query->where('name', 'LIKE', '%' . $request->get('search') . '%', 'OR')
+            ->where('file_path', 'LIKE', '%' . $request->get('search') . '%', 'OR');
+        }
+        if ($request->get('column') && $request->get('sort')) {
+            $query->orderBy($request->get('column'), $request->get('sort'));
+        }
+
+        $result =  BlobResource::collection($query->paginate($page_size, page: $page_index));
+        return response()->json([
+            'code' => Response::HTTP_OK,
+            'status' => true,
+            'data' => $result->items(),
+            'meta' => [
+                'total' => $result->total(),
+                'perPage' => $result->perPage(),
+                'currentPage' => $result->currentPage()
+            ]
+        ]);
     }
+
+    public function duplicateBlob(Request $request, $id)
+    {
+        $blob = Blob::find($id);
+        if ($blob) {
+            $fileName = Uuid::fromDateTime(now()) . '.' . pathinfo($blob->file_path, PATHINFO_EXTENSION);
+            if (Storage::copy($blob->file_path, $fileName)) {
+                $blob = Blob::create([
+                    'name' => $blob->name,
+                    'file_path' => $fileName,
+                    'created_by' => 20
+                ]);
+                return response()->json([
+                    'code' => Response::HTTP_OK,
+                    'status' => true,
+                    'data' => new BlobResource($blob),
+                ]);
+            }
+        }
+        return response()->json([
+            'code' => Response::HTTP_BAD_REQUEST,
+            'status' => false,
+        ]);
+    }
+
     public function upload(Request $request)
     {
         $file = $request->file('file');
@@ -80,12 +100,23 @@ class FileApiController extends Controller
 
     public function updateBlob(Request $request, $id)
     {
-        $this->validate($request, [
-            'name' => 'required'
-        ]);
+        $file = $request->file('file');
         $blob = Blob::find($id);
         if ($blob) {
-            $blob->name = $request['name'];
+
+            $name = $request->get('name') ?? $blob->name;
+            $name = pathinfo($name, PATHINFO_FILENAME);
+            if ($file && $file->isValid()) {
+                $iamgeSize = getimagesize($file);
+                $name = preg_replace("/\(\d+x\d+\)/", '', $name);
+                if ($iamgeSize) {
+                    $name .= "({$iamgeSize[0]}x{$iamgeSize[1]})";
+                }
+                unlink(storage_path('app/' . $blob->file_path));
+                $blob->file_path = $file->store('');
+            }
+            $blob->name = $name;
+            $blob->save();
             return response()->json([
                 'code' => Response::HTTP_OK,
                 'status' => true,
@@ -101,17 +132,25 @@ class FileApiController extends Controller
 
     public function uploadRange(Request $request)
     {
-        $files = $request->files;
+        $files = $request->file();
         $inserted = 0;
         foreach ($files as $file) {
-            $result = $file->store('');
-            if ($result) {
-                Blob::create([
-                    'name' => $file->getClientOriginalName(),
-                    'file_path' => $result,
-                    'created_by' => Auth::user()->id
-                ]);
-                $inserted++;
+            if ($file->isValid()) {
+                $name = $request->get('name') ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $iamgeSize = getimagesize($file);
+                if ($iamgeSize) {
+                    $name .= "({$iamgeSize[0]}x{$iamgeSize[1]})";
+                }
+                $name .= '.' . $file->extension();
+                $result = $file->store('');
+                if ($result) {
+                    Blob::create([
+                        'name' => $name,
+                        'file_path' => $result,
+                        'created_by' => Auth::user()->id ?? 0
+                    ]);
+                    $inserted++;
+                }
             }
         }
         return response()->json([
@@ -120,6 +159,11 @@ class FileApiController extends Controller
             'data' => $inserted,
         ]);
     }
+
+    // public function duplicateBlob(Request $request, int $id)
+    // {
+    //     $blob = Blob::firstOrFail
+    // }
 
     public function get(Request $request, string $name)
     {
@@ -178,5 +222,34 @@ class FileApiController extends Controller
                 'status' => false,
             ]);
         }
+    }
+    public function duplicatedFilter(Request $request)
+    {
+        $blobs = Blob::get();
+        foreach ($blobs as $key => $value) {
+            if ($value) {
+                $file = Storage::get($value->file_path);
+                if ($file) {
+                    foreach ($blobs as $k => $v) {
+                        if ($v->id != $value->id) {
+                            $checkFile = Storage::get($v->file_path);
+                            if ($checkFile == $file) {
+                                $assigns = $v->assigns();
+                                $assigns->update(['blob_id' => $value->id]);
+                                unlink(storage_path('app/' . $v->file_path));
+                                $v->delete();
+                                unset($blobs[$k]);
+                            }
+                        }
+                    }
+                } else {
+                    // $value::delete();
+                }
+            }
+        }
+        return response()->json([
+            'code' => Response::HTTP_OK,
+            'status' => true,
+        ]);
     }
 }

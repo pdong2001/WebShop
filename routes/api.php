@@ -49,12 +49,15 @@ Route::middleware([])->prefix('admin')->group(function () {
     Route::post('image_assigns', [ImageAssignApiController::class, 'store'])->name('image_assign.store');
     Route::delete('image_assigns/{id}', [ImageAssignApiController::class, 'destroy'])->name('image_assign.delete');
     Route::get('blobs', [FileApiController::class, 'getListBlob'])->name('file.index');
-    Route::post('upload', [FileApiController::class, 'uploadRange'])->name('file.uploadRange')->middleware(['auth:api']);
+    Route::post('upload', [FileApiController::class, 'uploadRange'])->name('file.uploadRange');
+    Route::post('file/duplicated-filter', [FileApiController::class, 'duplicatedFilter'])->name('file.duplicatedFilter');
+    Route::post('blobs/duplicate/{id}', [FileApiController::class, 'duplicateBlob'])->name('file.duplicateBlob');
 });
-Route::put('blobs/{id}', [FileApiController::class, 'updateBlob'])->name('blob.update')->middleware(['auth:api']);
+Route::post('blobs/{id}', [FileApiController::class, 'updateBlob'])->name('blob.update');
 Route::post('upload', [FileApiController::class, 'upload'])->name('file.upload');
 Route::delete('blobs/{id}', [FileApiController::class, 'delete'])->name('blob.delete')->middleware(['auth:api']);
 Route::get('files/{name}', [FileApiController::class, 'get'])->name('file.get');
+Route::get('blobs/{id}', [FileApiController::class, 'getByBlob'])->name('file.blob');
 Route::get('blobs/{id}', [FileApiController::class, 'getByBlob'])->name('file.blob');
 Route::get('blobs/download/{id}', [FileApiController::class, 'downloadById'])->name('file.blob');
 Route::get('file/download/{name}', [FileApiController::class, 'download'])->name('file.download');
