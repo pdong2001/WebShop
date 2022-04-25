@@ -20,29 +20,36 @@ class ImageAssignApiController extends Controller
                 'blob_id' => 'required_if:file,null',
                 'file' => 'required_if:blob_id,null',
                 'imageable_id' => 'required',
-                'imageable_type' => ['required',
-                Rule::in(['App\Models\Product','App\Models\ProductDetail'])]
+                'imageable_type' => [
+                    'required',
+                    Rule::in(['App\Models\Product', 'App\Models\ProductDetail'])
+                ]
             ]);
             $data = $request->post();
             $file = $request->file('file');
-            if ($file != null)
-            {
+            if ($file != null) {
+                $name = $data['name'] ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $iamgeSize = getimagesize($file);
+                if ($iamgeSize) {
+                    $name .= "({$iamgeSize[0]}x{$iamgeSize[1]})";
+                }
+                $name .= '.' . $file->extension();
                 $path = $file->store('');
                 $blob = Blob::create([
-                    'name' => $file->getClientOriginalName(),
+                    'name' => $name,
                     'file_path' => $path,
                     'created_by' => Auth::user()->id
                 ]);
                 $data['blob_id'] = $blob->id;
             }
-                $data['created_by'] = Auth::user()->id;
-                $result = ImageAssign::create($data);
-                $response = response()->json([
-                    'code' => Response::HTTP_OK,
-                    'status' => true,
-                    'data' => new ImageAssignResource($result),
-                    'meta' => []
-                ]);
+            $data['created_by'] = Auth::user()->id;
+            $result = ImageAssign::create($data);
+            $response = response()->json([
+                'code' => Response::HTTP_OK,
+                'status' => true,
+                'data' => new ImageAssignResource($result),
+                'meta' => []
+            ]);
         } catch (\Throwable $th) {
             $response = response()->json([
                 'code' => Response::HTTP_INTERNAL_SERVER_ERROR,
