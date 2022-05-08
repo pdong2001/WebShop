@@ -19,11 +19,6 @@ return new class extends Migration
                 ->on('product_details')
                 ->cascadeOnUpdate()
                 ->nullOnDelete();
-            $table->foreign('provider_id')
-                ->references('id')
-                ->on('providers')
-                ->cascadeOnUpdate()
-                ->nullOnDelete();
             $table->foreign('default_image')
                 ->references('id')
                 ->on('blobs')

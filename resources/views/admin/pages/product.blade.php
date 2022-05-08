@@ -41,7 +41,7 @@
                         <img height="100" ng-if="f.type == 'file'" src="/api/files/@{{ item | value: f.field }}" />
                     </td>
                     <td>
-                        <a href="/admin/product-detail/@{{ item.id }}" class="btn btn-success m-1">Xem</a>
+                        <a href="/admin/product/@{{ item.id }}" class="btn btn-success m-1">Xem</a>
                         <button ng-click="showEdit(item)" type="button" class="btn btn-info m-1" data-bs-toggle="modal"
                             data-bs-target="#staticBackdrop">
                             Sửa
@@ -118,6 +118,6 @@
 @endsection
 
 @section('scripts')
-    <script src="/admin/js/productExtend.js"></script>
-    <script src="/admin/js/appController.js"></script>
+    <script src="/assets/admin/js/productExtend.js"></script>
+    <script src="/assets/admin/js/appController.js"></script>
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Blob;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
@@ -26,6 +27,23 @@ class AdminController extends Controller
     function  Product(Request $request)
     {
         return view('admin/pages/product');
+    }
+    function  ProductSave(Request $request, $id)
+    {
+        $this->validate($request,Product::RULES);
+        $file = $request->file('file');
+        if ($file && $file->isValid())
+        {
+            $blob = Blob::create([
+                'file_path' => $file->store(''),
+                'name' => $request['name'],
+                'created_by' => 0
+            ]);
+            $request['default_image'] = $blob->id;
+        }
+        $product = Product::find($id);
+        $this->productService->update($id, $request->except(['_token', 'file']));
+        return redirect('/admin/product/'.$id);
     }
     function  ProductDetail(Request $request, int $id)
     {

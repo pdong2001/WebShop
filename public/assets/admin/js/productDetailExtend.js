@@ -13,17 +13,31 @@ extendController = ($scope, $http) => {
         },
         {
             hidden: false,
-            field: "option_name",
-            display: "Tên CT",
+            field: "color",
+            display: "Màu sắc",
             default: "",
             type: "text",
         },
         {
             hidden: false,
-            field: "option_value",
-            display: "Giá trị",
+            field: "size",
+            display: "Kích thước",
             default: "",
             type: "text",
+        },
+        {
+            hidden: false,
+            field: "in_price",
+            display: "Giá nhập",
+            default: 0,
+            type: "number",
+        },
+        {
+            hidden: false,
+            field: "out_price",
+            display: "Giá bán",
+            default: 0,
+            type: "number",
         },
         {
             hidden: false,
@@ -61,8 +75,6 @@ extendController = ($scope, $http) => {
             default: true,
             type: "checkbox",
         },
-        // {hidden: false, field: 'visible', display: 'Hiển thị', default: true, type: 'checkbox'},
-        // {hidden: false, field: 'visible', display: 'Hiển thị', default: true, type: 'checkbox'},
     ];
     $scope.id = 0;
     $scope.item = {};
@@ -71,7 +83,8 @@ extendController = ($scope, $http) => {
         $scope.item[field.field] = field.default;
     }
     const idInput = document.getElementById("product_id");
-    $scope.extendQuerys = idInput ? "product_id=" + idInput.value : "";
+    $scope.extendQuerys =
+        "with_product=true&" + (idInput ? "product_id=" + idInput.value : "");
     $scope.showEdit = (item) => {
         const file = document.getElementById("default_image.file_path");
         if (file != null) value = "";
@@ -103,9 +116,7 @@ extendController = ($scope, $http) => {
         for (let field of $scope.fields.filter((v) => !v.readonly)) {
             item[field.field] = $scope.item[field.field];
         }
-        let index = document.getElementById("select")?.selectedIndex ?? -1;
-        $scope.selectedProduct = $scope.products[index];
-        item.product_id = $scope.selectedProduct.id;
+        item.product_id = productId;
         if (file != undefined && file != null) {
             $scope.upLoadFile(file, "/api/upload").then((res) => {
                 if (res.data.status == true) {
@@ -120,7 +131,6 @@ extendController = ($scope, $http) => {
                 }
             });
         } else {
-            item.product_id = $scope.selectedProduct.id;
             if ($scope.editting) {
                 $scope.update($scope.id, item);
             } else if ($scope.deleting) {
@@ -144,3 +154,11 @@ extendController = ($scope, $http) => {
         console.log($scope.file);
     };
 };
+
+function formSubmit(e) {
+    description.value = editor.getData();
+}
+
+const description = document.getElementById('product_description');
+const productForm = document.getElementById("product_form");
+productForm.addEventListener("submit", formSubmit);
