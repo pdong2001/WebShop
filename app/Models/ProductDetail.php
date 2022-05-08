@@ -20,8 +20,6 @@ class ProductDetail extends FullAuditedEntity
 
     public const RULES = [
         'product_id' => 'required',
-        'option_name' => 'required',
-        'option_value' => 'required',
         'in_price' => 'required|min:0',
         'out_price' => 'required|min:0',
         'unit' => 'required',
@@ -34,8 +32,8 @@ class ProductDetail extends FullAuditedEntity
     protected $fillable = [
         ...parent::FILLABLE,
         "id",
-        "option_name",
-        "option_value",
+        "color",
+        "size",
         "out_price",
         "in_price",
         "remaining_quantity",
