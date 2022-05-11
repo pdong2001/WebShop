@@ -84,7 +84,9 @@ function getAll(
         $query->where('visible', $option['visible_only'] == "false" ? 0 : 1);
     }
     if ($orderBy) {
+        $query->join('product_details','products.id', '=' , 'product_details.product_id');
         $query->orderBy($orderBy['column'], $orderBy['sort']);
+        $query->select(['products.*']);
     }
     $query->orderBy('id', 'desc');
     return ProductResource::collection($query->paginate($page_size, page: $page_index));
