@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 /*
@@ -31,3 +32,7 @@ Route::prefix('admin')->group(function() {
     Route::get('product-detail', [AdminController::class, 'ProductDetails']);
     Route::get('category', [AdminController::class, 'Category']);
 });
+
+
+Route::get("/", [HomeController::class, "index"]);
+Route::get("/shop", [HomeController::class, "shop"]);
