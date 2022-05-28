@@ -6,21 +6,22 @@ extendController = ($scope, $http) => {
         {
             hidden: false,
             field: "product.name",
+            column : "product_id",
             display: "Tên sản phẩm",
             default: "",
             type: "text",
             readonly: true,
         },
+        // {
+        //     hidden: false,
+        //     field: "size",
+        //     display: "Màu sắc",
+        //     default: "",
+        //     type: "text",
+        // },
         {
             hidden: false,
             field: "size",
-            display: "Màu sắc",
-            default: "",
-            type: "text",
-        },
-        {
-            hidden: false,
-            field: "color",
             display: "Kích thước",
             default: "",
             type: "text",
@@ -30,29 +31,31 @@ extendController = ($scope, $http) => {
             field: "in_price",
             display: "Giá nhập",
             default: 0,
-            type: "text",
+            type: "number",
+            readonly: true
         },
         {
             hidden: false,
             field: "out_price",
             display: "Giá bán",
             default: 0,
-            type: "text",
+            type: "number",
         },
         {
             hidden: false,
             field: "remaining_quantity",
-            display: "Số lượng còn",
-            default: "",
-            type: "text",
+            display: "Số lượng",
+            default: 0,
+            type: "number",
         },
         {
             hidden: false,
-            field: "default_image.file_path",
+            field: "image.file_path",
+            column : "default_image",
             display: "Ảnh",
             default: "",
             type: "file",
-            readonly: false,
+            readonly: true,
         },
         {
             hidden: false,
@@ -63,17 +66,19 @@ extendController = ($scope, $http) => {
         },
         {
             hidden: false,
-            field: "total_quantity",
-            display: "Tổng số",
-            default: 0,
-            type: "text",
-        },
-        {
-            hidden: false,
             field: "visible",
             display: "Hiển thị",
             default: true,
             type: "checkbox",
+        },
+        {
+            hidden: true,
+            field: "default_image",
+            column : "default_image",
+            display: "Ảnh",
+            default: "",
+            type: "file",
+            readonly: false,
         },
     ];
     $scope.id = 0;
@@ -87,7 +92,7 @@ extendController = ($scope, $http) => {
 
     $scope.showEdit = (item) => {
         console.log(item);
-        const file = document.getElementById("default_image.file_path");
+        const file = document.querySelector("input[type='file']");
         if (file != null) value = "";
         $scope.id = item.id;
         $scope.selectedProduct =
@@ -103,13 +108,13 @@ extendController = ($scope, $http) => {
         for (let field of $scope.fields.filter((v) => !v.readonly)) {
             $scope.item[field.field] = field.default;
         }
-        const file = document.getElementById("default_image.file_path");
+        const file = document.querySelector("input[type='file']");
         if (file != null) value = "";
         $scope.editting = false;
         $scope.deleting = false;
     };
     $scope.save = () => {
-        const fileE = document.getElementById("default_image.file_path");
+        const fileE = document.querySelector("input[type='file']");
         let file;
         if (fileE != null) file = fileE.files[0];
         let item = {};
@@ -122,7 +127,7 @@ extendController = ($scope, $http) => {
             item.product_id = $scope.selectedProduct.id;
         }
         if (file != undefined && file != null) {
-            $scope.upLoadFile(file, "/api/upload").then((res) => {
+            $scope.upLoadFile(file, $scope.baseHref + "/api/upload").then((res) => {
                 if (res.data.status == true) {
                     item.default_image = res.data.data.id;
                 }
@@ -151,7 +156,7 @@ extendController = ($scope, $http) => {
         $scope.editting = false;
     };
     $scope.products = [];
-    $http.get("/api/admin/products?page=1&limit=1000").then((res) => {
+    $http.get( $scope.baseHref +"/api/admin/products?page=1&limit=1000").then((res) => {
         if (res.data.status == true) {
             $scope.products = res.data.data;
         }

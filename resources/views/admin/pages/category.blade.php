@@ -25,7 +25,7 @@
             <thead>
                 <tr>
                     <th scope="col">STT</th>
-                    <th style="cursor: pointer;" ng-repeat="f in fields | visible" ng-click="order(f.field)" scope="col">
+                    <th style="cursor: pointer;" ng-repeat="f in fields | visible" ng-click="order(f)" scope="col">
                         @{{ f.display }}
                     </th>
                     <th style="cursor: default;"></th>

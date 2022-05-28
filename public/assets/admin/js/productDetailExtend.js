@@ -48,7 +48,7 @@ extendController = ($scope, $http) => {
         },
         {
             hidden: false,
-            field: "default_image.file_path",
+            field: "dimage.file_path",
             display: "Ảnh",
             default: "",
             type: "file",
@@ -86,7 +86,7 @@ extendController = ($scope, $http) => {
     $scope.extendQuerys =
         "with_product=true&" + (idInput ? "product_id=" + idInput.value : "");
     $scope.showEdit = (item) => {
-        const file = document.getElementById("default_image.file_path");
+        const file = document.getElementById("image.file_path");
         if (file != null) value = "";
         $scope.id = item.id;
         $scope.selectedProduct =
@@ -103,13 +103,13 @@ extendController = ($scope, $http) => {
         for (let field of $scope.fields.filter((v) => !v.readonly)) {
             $scope.item[field.field] = field.default;
         }
-        const file = document.getElementById("default_image.file_path");
+        const file = document.getElementById("image.file_path");
         if (file != null) value = "";
         $scope.editting = false;
         $scope.deleting = false;
     };
     $scope.save = () => {
-        const fileE = document.getElementById("default_image.file_path");
+        const fileE = document.getElementById("image.file_path");
         let file;
         if (fileE != null) file = fileE.files[0];
         let item = {};
@@ -118,7 +118,7 @@ extendController = ($scope, $http) => {
         }
         item.product_id = productId;
         if (file != undefined && file != null) {
-            $scope.upLoadFile(file, "/api/upload").then((res) => {
+            $scope.upLoadFile(file,$scope.baseHref + "/api/upload").then((res) => {
                 if (res.data.status == true) {
                     item.default_image = res.data.data.id;
                 }

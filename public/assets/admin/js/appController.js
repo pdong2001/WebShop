@@ -14,11 +14,12 @@ app.controller("myController", function ($scope, $http) {
     $scope.searchValue = "";
     $scope.deleting = false;
     $scope.extendQuerys = "";
+    $scope.baseHref="https://localhost:44394";
     if (extendController) {
         extendController($scope, $http);
     }
     $scope.getList = () => {
-        const url = `/api/admin/${route}?page=${$scope.page}&limit=${$scope.limit}&column=${$scope.column}&sort=${$scope.sort}&search=${$scope.searchValue}&${$scope.extendQuerys}`;
+        const url = $scope.baseHref +`/api/admin/${route}?page=${$scope.page}&limit=${$scope.limit}&column=${$scope.column}&sort=${$scope.sort}&search=${$scope.searchValue}&${$scope.extendQuerys}`;
         $http.get(url).then((res) => {
             if (res.data.status == true) {
                 $scope.data = res.data.data;
@@ -37,7 +38,7 @@ app.controller("myController", function ($scope, $http) {
     };
 
     $scope.getById = (id) => {
-        const url = `/api/admin/${route}/${id}`;
+        const url = $scope.baseHref +`/api/admin/${route}/${id}`;
         $http.get(url).then((res) => {
             if (res.data.status == true) {
                 const index = $scope.data.findIndex((v) => v.id == id);
@@ -49,7 +50,7 @@ app.controller("myController", function ($scope, $http) {
     };
 
     $scope.update = (id, item) => {
-        const url = `/api/admin/${route}/${id}`;
+        const url = $scope.baseHref +`/api/admin/${route}/${id}`;
         $http.patch(url, item).then((res) => {
             if (res.data.status == true) {
                 $scope.getList();
@@ -58,7 +59,7 @@ app.controller("myController", function ($scope, $http) {
     };
 
     $scope.create = (item) => {
-        const url = `/api/admin/${route}`;
+        const url = $scope.baseHref +`/api/admin/${route}`;
         $http.post(url, item).then((res) => {
             if (res.data.status == true) {
                 $scope.getList();
@@ -66,7 +67,7 @@ app.controller("myController", function ($scope, $http) {
         });
     };
     $scope.delete = (id) => {
-        const url = `/api/admin/${route}/${id}`;
+        const url = $scope.baseHref +`/api/admin/${route}/${id}`;
         $http.delete(url).then((res) => {
             if (res.data.status == true) {
                 $scope.getList();
@@ -80,7 +81,8 @@ app.controller("myController", function ($scope, $http) {
         }
     };
 
-    $scope.order = (column) => {
+    $scope.order = (field) => {
+        const column = field.column??field.field;
         if ($scope.column != column) {
             $scope.column = column;
         } else {

@@ -1,5 +1,6 @@
 const route = "categories";
 extendController = ($scope, $http) => {
+    $scope.limit = 5;
     $scope.fields = [
         { field: "name", display: "Tên loại", default: "", type: "text" },
         {
@@ -28,8 +29,9 @@ extendController = ($scope, $http) => {
     };
 
     $scope.showAddNew = () => {
-        $scope.name = "";
-        $scope.visible = true;
+        for (let field of $scope.fields.filter((v) => !v.readonly)) {
+            $scope.item[field.field] = field.default;
+        }        $scope.visible = true;
         $scope.editting = false;
         $scope.deleting = false;
     };
